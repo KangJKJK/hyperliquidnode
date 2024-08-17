@@ -41,7 +41,10 @@ execute_with_prompt() {
 execute_with_prompt "패키지 업데이트 및 필요한 패키지 설치 중..." "sudo apt-get update && sudo apt-get install -y ca-certificates curl gnupg ufw"
 
 # 2. hlnode 사용자 생성 및 sudo 권한 부여
-execute_with_prompt "hlnode 사용자를 추가합니다..." "sudo adduser hlnode"
+# adduser 대신 useradd 사용
+execute_with_prompt "hlnode 사용자를 추가합니다..." "sudo useradd -m -s /bin/bash hlnode"
+# 비밀번호 설정
+execute_with_prompt "hlnode 사용자의 비밀번호를 설정합니다..." "echo 'hlnode:yourpassword' | sudo chpasswd"
 execute_with_prompt "hlnode를 sudo 그룹에 추가합니다..." "sudo usermod -aG sudo hlnode"
 
 # 3. hlnode 사용자로 전환 후 패키지 업데이트 및 업그레이드
@@ -57,5 +60,5 @@ execute_with_prompt "hl-visor를 실행 가능하게 설정합니다..." "sudo -
 # 5. hl-visor 실행
 execute_with_prompt "hl-visor를 시작합니다..." "sudo -u hlnode bash -c '~/hl-visor'"
 
-echo -e "${YELLOW}모든작업이 완료되었습니다.컨트롤+A+D로 스크린을 종료해주세요${NC}"
-echo -e "${GREEN}스크립트 작성자: kangjk${NC}"
+echo -e "${YELLOW}모든 작업이 완료되었습니다. 컨트롤+A+D로 스크린을 종료해주세요.${NC}"
+echo -e "${GREEN}스크립트 작성자: https://t.me/kjkresearch${NC}"
