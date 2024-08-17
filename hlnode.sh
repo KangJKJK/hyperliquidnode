@@ -79,8 +79,8 @@ read -p "UFW를 설치한 후 계속하려면 Enter를 누르세요..."
 execute_command "UFW 활성화 중..." "sudo ufw enable"
 execute_command "필요한 포트 개방 중..." \
     "sudo ufw allow ssh && \
-     sudo ufw allow 8001/tcp && \
-     sudo ufw allow 9001/tcp"
+     sudo ufw allow 8002/tcp && \
+     sudo ufw allow 9002/tcp"
 sleep 2
 
 # 6. Docker 설치 및 실행
