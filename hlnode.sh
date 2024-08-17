@@ -49,10 +49,11 @@ execute_with_prompt "패키지 업데이트 및 필요한 패키지 설치 중..
 execute_with_prompt "hlnode 사용자를 추가합니다..." "sudo useradd -m -s /bin/bash hlnode || echo 'User hlnode already exists'"
 
 # 3. 비밀번호 설정
-echo -e "${YELLOW}hlnode 사용자의 비밀번호를 설정 중입니다. 화면에서 비밀번호를 입력하세요.${NC}"
+echo -e "${YELLOW}hlnode 사용자의 비밀번호를 설정 중입니다. 터미널에서 비밀번호를 직접 입력해 주세요.${NC}"
+echo "비밀번호 설정을 완료한 후 Enter를 눌러 계속 진행하십시오."
+# 직접 비밀번호를 설정하도록 유도
 sudo passwd hlnode
-echo -e "${YELLOW}비밀번호 설정이 완료되었습니다. Enter를 눌러 계속 진행하십시오...${NC}"
-read -r
+read -r -p "비밀번호 설정이 완료되었습니다. Enter를 눌러 계속 진행하십시오... "
 
 # hlnode를 sudo 그룹에 추가
 execute_with_prompt "hlnode를 sudo 그룹에 추가합니다..." "sudo usermod -aG sudo hlnode"
