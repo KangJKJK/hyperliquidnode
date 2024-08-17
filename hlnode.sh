@@ -43,7 +43,7 @@ execute_with_prompt() {
 }
 
 # 1. 패키지 업데이트 및 설치
-execute_with_prompt "패키지 업데이트 및 필요한 패키지 설치 중..." "sudo apt-get update && sudo apt-get install -y ca-certificates curl gnupg ufw"
+execute_with_prompt "패키지 업데이트 및 필요한 패키지 설치 중..." "sudo apt-get update && sudo apt-get install -y ca-certificates curl gnupg ufw build-essential"
 
 # 2. hlnode 사용자 생성
 execute_with_prompt "hlnode 사용자를 추가합니다..." "sudo useradd -m -s /bin/bash hlnode || echo 'User hlnode already exists'"
@@ -64,61 +64,29 @@ echo "위에서 설정한 비밀번호를 입력하세요."
 sudo -u hlnode bash -c 'sudo apt-get update && sudo apt-get upgrade -y'
 read -r -p "Enter를 눌러 계속 진행하십시오."
 
-# 5. 파일 다운로드 및 hl-visor 설정
+# 5. GLIBC 업그레이드
+echo -e "${YELLOW}GLIBC 업그레이드를 시작합니다...${NC}"
+execute_with_prompt "GLIBC 소스 다운로드 및 압축 해제..." "wget https://ftp.gnu.org/gnu/libc/glibc-2.38.tar.gz && tar -xvf glibc-2.38.tar.gz"
+execute_with_prompt "GLIBC 컴파일 및 설치..." "cd glibc-2.38 && mkdir build && cd build && ../configure --prefix=/opt/glibc-2.38 && make && sudo make install"
+echo -e "${YELLOW}GLIBC 설치가 완료되었습니다. 새로운 GLIBC를 사용하기 위해 환경 변수를 설정합니다.${NC}"
+echo "export LD_LIBRARY_PATH=/opt/glibc-2.38/lib:\$LD_LIBRARY_PATH" >> ~/.bashrc
+source ~/.bashrc
+
+# 6. 파일 다운로드 및 hl-visor 설정
 execute_with_prompt "initial_peers.json 파일을 다운로드합니다..." "sudo -u hlnode bash -c 'curl https://binaries.hyperliquid.xyz/Testnet/initial_peers.json > ~/initial_peers.json'"
 execute_with_prompt "visor.json 파일을 생성합니다..." "sudo -u hlnode bash -c 'echo \"{\\\"chain\\\": \\\"Testnet\\\"}\" > ~/visor.json'"
 execute_with_prompt "non_validator_config.json 파일을 다운로드합니다..." "sudo -u hlnode bash -c 'curl https://binaries.hyperliquid.xyz/Testnet/non_validator_config.json > ~/non_validator_config.json'"
 execute_with_prompt "hl-visor를 다운로드하고 설정합니다..." "sudo -u hlnode bash -c 'curl https://binaries.hyperliquid.xyz/Testnet/hl-visor > ~/hl-visor'"
 execute_with_prompt "hl-visor를 실행 가능하게 설정합니다..." "sudo -u hlnode bash -c 'chmod a+x ~/hl-visor'"
-execute_with_prompt "구성요소를 업데이트합니다..." "sudo apt-get update && sudo apt-get upgrade"
-sleep 2
 
-# 6. UFW 설치 및 포트 개방
-execute_command "UFW 설치 중..." "sudo apt-get install -y ufw"
+# 7. UFW 설치 및 포트 개방
+execute_with_prompt "UFW 설치 중..." "sudo apt-get install -y ufw"
 read -p "UFW를 설치한 후 계속하려면 Enter를 누르세요..."
-execute_command "UFW 활성화 중..." "sudo ufw enable"
-execute_command "필요한 포트 개방 중..." \
+execute_with_prompt "UFW 활성화 중..." "sudo ufw enable"
+execute_with_prompt "필요한 포트 개방 중..." \
     "sudo ufw allow ssh && \
-     sudo ufw allow 8002/tcp && \
-     sudo ufw allow 9002/tcp"
-sleep 2
-
-# 6. Docker 설치 및 실행
-execute_with_prompt "Docker를 설치합니다..." "sudo apt-get update && sudo apt-get install -y docker.io"
-execute_with_prompt "Docker 서비스를 시작하고 활성화합니다..." "sudo systemctl start docker && sudo systemctl enable docker"
-sleep 2
-
-# Docker Compose 설치
-execute_with_prompt "Docker Compose를 설치합니다..." "sudo curl -L \"https://github.com/docker/compose/releases/download/$(curl -s https://api.github.com/repos/docker/compose/releases/latest | grep 'tag_name' | cut -d\" -f4)/docker-compose-$(uname -s)-$(uname -m)\" -o /usr/local/bin/docker-compose && sudo chmod +x /usr/local/bin/docker-compose"
-sleep 2
-
-# Docker Compose 파일 작성
-cat <<EOF > /home/hlnode/docker-compose.yml
-version: '3.8'
-
-services:
-  node:
-    image: hyperliquid/hl-node:latest
-    restart: unless-stopped
-    ports:
-      - "8002:8000"  # 호스트의 8002 포트를 컨테이너의 8000 포트에 매핑
-      - "9002:9000"  # 호스트의 9002 포트를 컨테이너의 9000 포트에 매핑
-    volumes:
-      - hl-data:/home/hluser/hl/data
-
-  pruner:
-    image: hyperliquid/hl-pruner:latest
-    restart: unless-stopped
-    volumes:
-      - hl-data:/home/hluser/hl/data
-
-volumes:
-  hl-data:
-    driver: local
-EOF
-
-# Docker Compose를 사용하여 이미지를 빌드하고 실행
-execute_with_prompt "Docker Compose를 사용하여 이미지를 빌드하고 실행합니다..." "sudo docker-compose -f /home/hlnode/docker-compose.yml pull && sudo docker-compose -f /home/hlnode/docker-compose.yml up -d"
+     sudo ufw allow 8000/tcp && \
+     sudo ufw allow 9000/tcp"
 sleep 2
 
 echo -e "${YELLOW}모든 작업이 완료되었습니다. 컨트롤+A+D로 스크린을 종료해주세요.${NC}"
