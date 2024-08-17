@@ -75,7 +75,7 @@ execute_with_prompt "구성요소를 업데이트합니다..." "sudo apt-get upd
 # 6. Docker 설치 및 실행
 # Docker 설치 및 업데이트 여부 확인
 if ! command -v docker &> /dev/null; then
-    execute_with_prompt "Docker를 설치합니다..." "sudo apt-get update && sudo apt-get install -y docker.io"
+    execute_with_prompt "Docker를 설치합니다...시간이 좀 걸립니다." "sudo apt-get update && sudo apt-get install -y docker.io"
 else
     echo -e "${GREEN}Docker가 이미 설치되어 있습니다.${NC}"
 fi
