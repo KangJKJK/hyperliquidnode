@@ -80,19 +80,17 @@ execute_with_prompt "hl-visor를 실행 가능하게 설정합니다..." "sudo -
 execute_with_prompt "구성요소를 업데이트합니다..." "sudo apt-get update && sudo apt-get upgrade"
 
 # 7. Docker 설치 및 실행
+# Docker 설치 및 업데이트 여부 확인
 if ! command -v docker &> /dev/null; then
     execute_with_prompt "Docker를 설치합니다..." "sudo apt-get update && sudo apt-get install -y docker.io"
 else
     echo -e "${GREEN}Docker가 이미 설치되어 있습니다.${NC}"
 fi
+# Docker 서비스 시작 및 활성화
 execute_with_prompt "Docker 서비스를 시작하고 활성화합니다..." "sudo systemctl start docker && sudo systemctl enable docker"
 
-# 8. Docker 이미지 다운로드
-docker_image="hyperliquid/hl-visor:latest"
-execute_with_prompt "Docker 이미지를 다운로드합니다..." "sudo docker pull $docker_image"
-
-# 9. Docker 컨테이너에서 hl-visor 실행
-execute_with_prompt "Docker 컨테이너에서 hl-visor를 실행합니다..." "sudo docker run -d --name hl-visor-instance $docker_image run-non-validator""
+# 6. hl-visor 실행 (run-non-validator 서브커맨드를 사용)
+execute_with_prompt "hl-visor를 시작합니다..." "sudo -u hlnode bash -c '~/hl-visor run-non-validator'"
 
 echo -e "${YELLOW}모든 작업이 완료되었습니다. 컨트롤+A+D로 스크린을 종료해주세요.${NC}"
 echo -e "${GREEN}스크립트 작성자: https://t.me/kjkresearch${NC}"
