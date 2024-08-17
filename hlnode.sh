@@ -6,6 +6,11 @@ export GREEN='\033[0;32m'
 export YELLOW='\033[1;33m'
 export NC='\033[0m'  # No Color
 
+# 안내 메시지
+echo -e "${YELLOW}설치 도중 문제가 발생하면 다음 명령어를 입력하고 다시 시도하세요:${NC}"
+echo -e "${YELLOW}sudo rm -f /root/hlnode.sh${NC}"
+echo
+
 # 함수: 명령어 실행 및 결과 확인, 오류 발생 시 사용자에게 계속 진행할지 묻기
 execute_with_prompt() {
     local message="$1"
