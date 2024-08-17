@@ -71,33 +71,58 @@ execute_with_prompt "non_validator_config.json 파일을 다운로드합니다..
 execute_with_prompt "hl-visor를 다운로드하고 설정합니다..." "sudo -u hlnode bash -c 'curl https://binaries.hyperliquid.xyz/Testnet/hl-visor > ~/hl-visor'"
 execute_with_prompt "hl-visor를 실행 가능하게 설정합니다..." "sudo -u hlnode bash -c 'chmod a+x ~/hl-visor'"
 execute_with_prompt "구성요소를 업데이트합니다..." "sudo apt-get update && sudo apt-get upgrade"
+sleep 2
+
+# 6. UFW 설치 및 포트 개방
+execute_command "UFW 설치 중..." "sudo apt-get install -y ufw"
+read -p "UFW를 설치한 후 계속하려면 Enter를 누르세요..."
+execute_command "UFW 활성화 중..." "sudo ufw enable"
+execute_command "필요한 포트 개방 중..." \
+    "sudo ufw allow ssh && \
+     sudo ufw allow 8000/tcp && \
+     sudo ufw allow 9000/tcp"
+sleep 2
 
 # 6. Docker 설치 및 실행
 execute_with_prompt "Docker를 설치합니다..." "sudo apt-get update && sudo apt-get install -y docker.io"
 execute_with_prompt "Docker 서비스를 시작하고 활성화합니다..." "sudo systemctl start docker && sudo systemctl enable docker"
+sleep 2
 
 # Docker Compose 설치
 execute_with_prompt "Docker Compose를 설치합니다..." "sudo curl -L \"https://github.com/docker/compose/releases/download/$(curl -s https://api.github.com/repos/docker/compose/releases/latest | grep 'tag_name' | cut -d\" -f4)/docker-compose-$(uname -s)-$(uname -m)\" -o /usr/local/bin/docker-compose && sudo chmod +x /usr/local/bin/docker-compose"
-
-# Docker Compose 설치 확인
-execute_with_prompt "Docker Compose 버전을 확인합니다..." "docker-compose --version"
+sleep 2
 
 # Docker Compose 파일 작성
 cat <<EOF > /home/hlnode/docker-compose.yml
 version: '3.8'
 
 services:
-  hl-visor:
+  node:
     image: hyperliquid/hl-visor:latest
     command: run-non-validator
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+      - "9000:9000"
     volumes:
-      - ./config:/config
+      - hl-data:/home/hluser/hl/data
+
+  pruner:
+    image: hyperliquid/hl-pruner:latest
+    restart: unless-stopped
+    volumes:
+      - hl-data:/home/hluser/hl/data
+
+volumes:
+  hl-data:
+    driver: local
 EOF
 
-execute_with_prompt "Docker 이미지를 다운로드합니다..." "sudo docker pull hyperliquid/hl-visor:latest"
+# Docker Compose를 사용하여 이미지를 빌드하고 실행
 execute_with_prompt "Docker Compose를 사용하여 이미지를 빌드하고 실행합니다..." "sudo docker-compose -f /home/hlnode/docker-compose.yml up -d"
+sleep 2
 
-# 7. hl-visor 실행 (run-non-validator 서브커맨드를 사용)
+# 8. hl-visor 실행 (run-non-validator 서브커맨드를 사용)
 execute_with_prompt "hl-visor를 시작합니다..." "sudo -u hlnode bash -c '~/hl-visor run-non-validator'"
 
 echo -e "${YELLOW}모든 작업이 완료되었습니다. 컨트롤+A+D로 스크린을 종료해주세요.${NC}"
