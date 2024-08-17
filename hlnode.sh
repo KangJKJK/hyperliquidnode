@@ -73,14 +73,29 @@ execute_with_prompt "hl-visor를 실행 가능하게 설정합니다..." "sudo -
 execute_with_prompt "구성요소를 업데이트합니다..." "sudo apt-get update && sudo apt-get upgrade"
 
 # 6. Docker 설치 및 실행
-# Docker 설치 및 업데이트 여부 확인
-if ! command -v docker &> /dev/null; then
-    execute_with_prompt "Docker를 설치합니다...시간이 좀 걸립니다." "sudo apt-get update && sudo apt-get install -y docker.io"
-else
-    echo -e "${GREEN}Docker가 이미 설치되어 있습니다.${NC}"
-fi
-# Docker 서비스 시작 및 활성화
+execute_with_prompt "Docker를 설치합니다..." "sudo apt-get update && sudo apt-get install -y docker.io"
 execute_with_prompt "Docker 서비스를 시작하고 활성화합니다..." "sudo systemctl start docker && sudo systemctl enable docker"
+
+# Docker Compose 설치
+execute_with_prompt "Docker Compose를 설치합니다..." "sudo curl -L \"https://github.com/docker/compose/releases/download/$(curl -s https://api.github.com/repos/docker/compose/releases/latest | grep 'tag_name' | cut -d\" -f4)/docker-compose-$(uname -s)-$(uname -m)\" -o /usr/local/bin/docker-compose && sudo chmod +x /usr/local/bin/docker-compose"
+
+# Docker Compose 설치 확인
+execute_with_prompt "Docker Compose 버전을 확인합니다..." "docker-compose --version"
+
+# Docker Compose 파일 작성
+cat <<EOF > /home/hlnode/docker-compose.yml
+version: '3.8'
+
+services:
+  hl-visor:
+    image: hyperliquid/hl-visor:latest
+    command: run-non-validator
+    volumes:
+      - ./config:/config
+EOF
+
+execute_with_prompt "Docker 이미지를 다운로드합니다..." "sudo docker pull hyperliquid/hl-visor:latest"
+execute_with_prompt "Docker Compose를 사용하여 이미지를 빌드하고 실행합니다..." "sudo docker-compose -f /home/hlnode/docker-compose.yml up -d"
 
 # 7. hl-visor 실행 (run-non-validator 서브커맨드를 사용)
 execute_with_prompt "hl-visor를 시작합니다..." "sudo -u hlnode bash -c '~/hl-visor run-non-validator'"
