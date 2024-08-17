@@ -64,7 +64,14 @@ echo "위에서 설정한 비밀번호를 입력하세요."
 sudo -u hlnode bash -c 'sudo apt-get update && sudo apt-get upgrade -y'
 read -r -p "Enter를 눌러 계속 진행하십시오."
 
-# 5. 파일 다운로드 및 hl-visor 설정
+# 5. Docker 설치 및 실행
+execute_with_prompt "Docker를 설치합니다..." "sudo apt-get update && sudo apt-get install -y docker.io"
+execute_with_prompt "Docker 서비스를 시작하고 활성화합니다..." "sudo systemctl start docker && sudo systemctl enable docker"
+docker_image="hyperliquid/hl-visor:latest"
+execute_with_prompt "Docker 이미지를 다운로드합니다..." "sudo docker pull $docker_image"
+execute_with_prompt "Docker 컨테이너에서 hl-visor를 실행합니다..." "sudo docker run -it --rm $docker_image"
+
+# 6. 파일 다운로드 및 hl-visor 설정
 execute_with_prompt "initial_peers.json 파일을 다운로드합니다..." "sudo -u hlnode bash -c 'curl https://binaries.hyperliquid.xyz/Testnet/initial_peers.json > ~/initial_peers.json'"
 execute_with_prompt "visor.json 파일을 생성합니다..." "sudo -u hlnode bash -c 'echo \"{\\\"chain\\\": \\\"Testnet\\\"}\" > ~/visor.json'"
 execute_with_prompt "non_validator_config.json 파일을 다운로드합니다..." "sudo -u hlnode bash -c 'curl https://binaries.hyperliquid.xyz/Testnet/non_validator_config.json > ~/non_validator_config.json'"
@@ -72,8 +79,16 @@ execute_with_prompt "hl-visor를 다운로드하고 설정합니다..." "sudo -u
 execute_with_prompt "hl-visor를 실행 가능하게 설정합니다..." "sudo -u hlnode bash -c 'chmod a+x ~/hl-visor'"
 execute_with_prompt "구성요소를 업데이트합니다..." "sudo apt-get update && sudo apt-get upgrade"
 
-# 6. hl-visor 실행 (run-non-validator 서브커맨드를 사용)
-execute_with_prompt "hl-visor를 시작합니다..." "sudo -u hlnode bash -c '~/hl-visor run-non-validator'"
+# 7. Docker 설치 및 실행
+execute_with_prompt "Docker를 설치합니다..." "sudo apt-get update && sudo apt-get install -y docker.io"
+execute_with_prompt "Docker 서비스를 시작하고 활성화합니다..." "sudo systemctl start docker && sudo systemctl enable docker"
+
+# 8. Docker 이미지 다운로드
+docker_image="hyperliquid/hl-visor:latest"
+execute_with_prompt "Docker 이미지를 다운로드합니다..." "sudo docker pull $docker_image"
+
+# 9. Docker 컨테이너에서 hl-visor 실행
+execute_with_prompt "Docker 컨테이너에서 hl-visor를 실행합니다..." "sudo docker run -d --name hl-visor-instance $docker_image run-non-validator""
 
 echo -e "${YELLOW}모든 작업이 완료되었습니다. 컨트롤+A+D로 스크린을 종료해주세요.${NC}"
 echo -e "${GREEN}스크립트 작성자: https://t.me/kjkresearch${NC}"
