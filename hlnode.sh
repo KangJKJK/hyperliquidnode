@@ -53,15 +53,16 @@ echo -e "${YELLOW}hlnode 사용자의 비밀번호를 설정 중입니다. 터�
 echo "비밀번호 설정을 완료한 후 Enter를 눌러 계속 진행하십시오."
 # 직접 비밀번호를 설정하도록 유도
 sudo passwd hlnode
-read -r -p "비밀번호 설정이 완료되었습니다. Enter를 눌러 계속 진행하십시오... "
+read -r -p "비밀번호 설정이 완료되었습니다. Enter를 눌러 계속 진행하십시오."
 
 # hlnode를 sudo 그룹에 추가
 execute_with_prompt "hlnode를 sudo 그룹에 추가합니다..." "sudo usermod -aG sudo hlnode"
 
 # 4. hlnode 사용자로 전환 후 패키지 업데이트 및 업그레이드
 echo -e "${YELLOW}패키지 목록을 업데이트하고 패키지를 업그레이드합니다...${NC}"
-echo -e "${YELLOW}위에서 설정한 비밀번호를 입력하세요.${NC}"
+echo "위에서 설정한 비밀번호를 입력하세요."
 sudo -u hlnode bash -c 'sudo apt-get update && sudo apt-get upgrade -y'
+read -r -p "Enter를 눌러 계속 진행하십시오."
 
 # 5. 파일 다운로드 및 hl-visor 설정
 execute_with_prompt "initial_peers.json 파일을 다운로드합니다..." "sudo -u hlnode bash -c 'curl https://binaries.hyperliquid.xyz/Testnet/initial_peers.json > ~/initial_peers.json'"
