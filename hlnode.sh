@@ -43,7 +43,7 @@ execute_with_prompt() {
 }
 
 # 1. 패키지 업데이트 및 설치
-execute_with_prompt "패키지 업데이트 및 필요한 패키지 설치 중..." "sudo apt-get update && sudo apt-get install -y ca-certificates curl gnupg ufw build-essential"
+execute_with_prompt "패키지 업데이트 및 필요한 패키지 설치 중..." "sudo apt-get update && sudo apt-get install -y ca-certificates curl gnupg ufw build-essential gawk bison"
 
 # 2. hlnode 사용자 생성
 execute_with_prompt "hlnode 사용자를 추가합니다..." "sudo useradd -m -s /bin/bash hlnode || echo 'User hlnode already exists'"
@@ -85,8 +85,8 @@ read -p "UFW를 설치한 후 계속하려면 Enter를 누르세요..."
 execute_with_prompt "UFW 활성화 중..." "sudo ufw enable"
 execute_with_prompt "필요한 포트 개방 중..." \
     "sudo ufw allow ssh && \
-     sudo ufw allow 8000/tcp && \
-     sudo ufw allow 9000/tcp"
+     sudo ufw allow 8002/tcp && \
+     sudo ufw allow 9002/tcp"
 sleep 2
 
 echo -e "${YELLOW}모든 작업이 완료되었습니다. 컨트롤+A+D로 스크린을 종료해주세요.${NC}"
