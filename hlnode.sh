@@ -79,8 +79,8 @@ read -p "UFW를 설치한 후 계속하려면 Enter를 누르세요..."
 execute_command "UFW 활성화 중..." "sudo ufw enable"
 execute_command "필요한 포트 개방 중..." \
     "sudo ufw allow ssh && \
-     sudo ufw allow 8000/tcp && \
-     sudo ufw allow 9000/tcp"
+     sudo ufw allow 8001/tcp && \
+     sudo ufw allow 9001/tcp"
 sleep 2
 
 # 6. Docker 설치 및 실행
@@ -98,12 +98,11 @@ version: '3.8'
 
 services:
   node:
-    image: hyperliquid/hl-visor:latest
-    command: run-non-validator
+    image: hyperliquid/hl-node:latest
     restart: unless-stopped
     ports:
-      - "8000:8000"
-      - "9000:9000"
+      - "8002:8000"  # 호스트의 8002 포트를 컨테이너의 8000 포트에 매핑
+      - "9002:9000"  # 호스트의 9002 포트를 컨테이너의 9000 포트에 매핑
     volumes:
       - hl-data:/home/hluser/hl/data
 
@@ -119,11 +118,8 @@ volumes:
 EOF
 
 # Docker Compose를 사용하여 이미지를 빌드하고 실행
-execute_with_prompt "Docker Compose를 사용하여 이미지를 빌드하고 실행합니다..." "sudo docker-compose -f /home/hlnode/docker-compose.yml up -d"
+execute_with_prompt "Docker Compose를 사용하여 이미지를 빌드하고 실행합니다..." "sudo docker-compose -f /home/hlnode/docker-compose.yml pull && sudo docker-compose -f /home/hlnode/docker-compose.yml up -d"
 sleep 2
-
-# 8. hl-visor 실행 (run-non-validator 서브커맨드를 사용)
-execute_with_prompt "hl-visor를 시작합니다..." "sudo -u hlnode bash -c '~/hl-visor run-non-validator'"
 
 echo -e "${YELLOW}모든 작업이 완료되었습니다. 컨트롤+A+D로 스크린을 종료해주세요.${NC}"
 echo -e "${GREEN}스크립트 작성자: https://t.me/kjkresearch${NC}"
