@@ -68,8 +68,8 @@ execute_with_prompt "non_validator_config.json 파일을 다운로드합니다..
 execute_with_prompt "hl-visor를 다운로드하고 설정합니다..." "sudo -u hlnode bash -c 'curl https://binaries.hyperliquid.xyz/Testnet/hl-visor > ~/hl-visor'"
 execute_with_prompt "hl-visor를 실행 가능하게 설정합니다..." "sudo -u hlnode bash -c 'chmod a+x ~/hl-visor'"
 
-# 6. hl-visor 실행
-execute_with_prompt "hl-visor를 시작합니다..." "sudo -u hlnode bash -c '~/hl-visor'"
+# 6. hl-visor 실행 (run-non-validator 서브커맨드를 사용)
+execute_with_prompt "hl-visor를 시작합니다..." "sudo -u hlnode bash -c '~/hl-visor run-non-validator'"
 
 echo -e "${YELLOW}모든 작업이 완료되었습니다. 컨트롤+A+D로 스크린을 종료해주세요.${NC}"
 echo -e "${GREEN}스크립트 작성자: https://t.me/kjkresearch${NC}"
