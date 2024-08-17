@@ -37,47 +37,33 @@ execute_with_prompt() {
     fi
 }
 
-# expect 설치
-execute_with_prompt "expect 설치 중..." "sudo apt-get install -y expect"
-
-# expect 스크립트 생성
-cat << 'EOF' > /tmp/expect_set_password.exp
-#!/usr/bin/expect -f
-
-set timeout -1
-spawn sudo passwd hlnode
-expect "Enter new UNIX password:"
-send "yourpassword\r"
-expect "Retype new UNIX password:"
-send "yourpassword\r"
-expect eof
-EOF
-
-# expect 스크립트에 실행 권한 부여
-chmod +x /tmp/expect_set_password.exp
-
 # 1. 패키지 업데이트 및 설치
 execute_with_prompt "패키지 업데이트 및 필요한 패키지 설치 중..." "sudo apt-get update && sudo apt-get install -y ca-certificates curl gnupg ufw"
 
-# 2. hlnode 사용자 생성 및 sudo 권한 부여
-execute_with_prompt "hlnode 사용자를 추가합니다..." "sudo useradd -m -s /bin/bash hlnode"
+# 2. hlnode 사용자 생성
+execute_with_prompt "hlnode 사용자를 추가합니다..." "sudo useradd -m -s /bin/bash hlnode || echo 'User hlnode already exists'"
 
-# 비밀번호 설정
-execute_with_prompt "hlnode 사용자의 비밀번호를 설정합니다..." "/tmp/expect_set_password.exp"
+# 3. 비밀번호 설정을 위해 사용자에게 직접 입력 요청
+echo -e "${YELLOW}hlnode 사용자의 비밀번호를 설정하려면 아래 명령어를 수동으로 실행해 주세요.${NC}"
+echo "sudo passwd hlnode"
 
+# 비밀번호 설정 명령어를 수동으로 실행한 후, Enter를 눌러 계속 진행
+read -p "비밀번호를 설정한 후 Enter를 눌러 계속 진행하십시오... " 
+
+# hlnode를 sudo 그룹에 추가
 execute_with_prompt "hlnode를 sudo 그룹에 추가합니다..." "sudo usermod -aG sudo hlnode"
 
-# 3. hlnode 사용자로 전환 후 패키지 업데이트 및 업그레이드
+# 4. hlnode 사용자로 전환 후 패키지 업데이트 및 업그레이드
 execute_with_prompt "패키지 목록을 업데이트하고 패키지를 업그레이드합니다..." "sudo -u hlnode bash -c 'sudo apt-get update && sudo apt-get upgrade -y'"
 
-# 4. 파일 다운로드 및 hl-visor 설정
+# 5. 파일 다운로드 및 hl-visor 설정
 execute_with_prompt "initial_peers.json 파일을 다운로드합니다..." "sudo -u hlnode bash -c 'curl https://binaries.hyperliquid.xyz/Testnet/initial_peers.json > ~/initial_peers.json'"
 execute_with_prompt "visor.json 파일을 생성합니다..." "sudo -u hlnode bash -c 'echo \"{\\\"chain\\\": \\\"Testnet\\\"}\" > ~/visor.json'"
 execute_with_prompt "non_validator_config.json 파일을 다운로드합니다..." "sudo -u hlnode bash -c 'curl https://binaries.hyperliquid.xyz/Testnet/non_validator_config.json > ~/non_validator_config.json'"
 execute_with_prompt "hl-visor를 다운로드하고 설정합니다..." "sudo -u hlnode bash -c 'curl https://binaries.hyperliquid.xyz/Testnet/hl-visor > ~/hl-visor'"
 execute_with_prompt "hl-visor를 실행 가능하게 설정합니다..." "sudo -u hlnode bash -c 'chmod a+x ~/hl-visor'"
 
-# 5. hl-visor 실행
+# 6. hl-visor 실행
 execute_with_prompt "hl-visor를 시작합니다..." "sudo -u hlnode bash -c '~/hl-visor'"
 
 echo -e "${YELLOW}모든 작업이 완료되었습니다. 컨트롤+A+D로 스크린을 종료해주세요.${NC}"
