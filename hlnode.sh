@@ -37,14 +37,34 @@ execute_with_prompt() {
     fi
 }
 
+# expect 설치
+execute_with_prompt "expect 설치 중..." "sudo apt-get install -y expect"
+
+# expect 스크립트 생성
+cat << 'EOF' > /tmp/expect_set_password.exp
+#!/usr/bin/expect -f
+
+set timeout -1
+spawn sudo passwd hlnode
+expect "Enter new UNIX password:"
+send "yourpassword\r"
+expect "Retype new UNIX password:"
+send "yourpassword\r"
+expect eof
+EOF
+
+# expect 스크립트에 실행 권한 부여
+chmod +x /tmp/expect_set_password.exp
+
 # 1. 패키지 업데이트 및 설치
 execute_with_prompt "패키지 업데이트 및 필요한 패키지 설치 중..." "sudo apt-get update && sudo apt-get install -y ca-certificates curl gnupg ufw"
 
 # 2. hlnode 사용자 생성 및 sudo 권한 부여
-# adduser 대신 useradd 사용
 execute_with_prompt "hlnode 사용자를 추가합니다..." "sudo useradd -m -s /bin/bash hlnode"
+
 # 비밀번호 설정
-execute_with_prompt "hlnode 사용자의 비밀번호를 설정합니다..." "echo 'hlnode:yourpassword' | sudo chpasswd"
+execute_with_prompt "hlnode 사용자의 비밀번호를 설정합니다..." "/tmp/expect_set_password.exp"
+
 execute_with_prompt "hlnode를 sudo 그룹에 추가합니다..." "sudo usermod -aG sudo hlnode"
 
 # 3. hlnode 사용자로 전환 후 패키지 업데이트 및 업그레이드
