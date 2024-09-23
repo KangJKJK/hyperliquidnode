@@ -54,15 +54,13 @@ source ~/.bashrc
 
 # 8. 파일 다운로드 및 hl-visor 설정
 echo -e "${YELLOW}initial_peers.json 파일을 다운로드합니다...${NC}"
-sudo -u hlnode bash -c 'curl https://binaries.hyperliquid.xyz/Testnet/initial_peers.json > ~/initial_peers.json'
+curl -o ~/initial_peers.json https://binaries.hyperliquid.xyz/Testnet/initial_peers.json
 echo -e "${YELLOW}visor.json 파일을 생성합니다...${NC}"
-sudo -u hlnode bash -c 'echo "{\\\"chain\\\": \\\"Testnet\\\"}" > ~/visor.json'
+echo "{\"chain\": \"Testnet\"}" > ~/visor.json
 echo -e "${YELLOW}non_validator_config.json 파일을 다운로드합니다...${NC}"
-sudo -u hlnode bash -c 'curl https://binaries.hyperliquid.xyz/Testnet/non_validator_config.json > ~/non_validator_config.json'
-echo -e "${YELLOW}hl-visor를 다운로드하고 설정합니다...${NC}"
-sudo -u hlnode bash -c 'curl https://binaries.hyperliquid.xyz/Testnet/hl-visor > ~/hl-visor'
-echo -e "${YELLOW}hl-visor를 실행 가능하게 설정합니다...${NC}"
-sudo -u hlnode bash -c 'chmod a+x ~/hl-visor'
+curl https://binaries.hyperliquid.xyz/Testnet/non_validator_config.json > ~/non_validator_config.json
+echo -e "${YELLOW}hl-visor를 다운로드하고 권한을 부여합니다...${NC}"
+curl https://binaries.hyperliquid.xyz/Testnet/hl-visor > ~/hl-visor && chmod a+x ~/hl-visor
 
 # 9. 사용자에게 노드정보를 입력받기
 echo -e "${YELLOW}노드정보를 구성중입니다...${NC}"
