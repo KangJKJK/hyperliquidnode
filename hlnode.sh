@@ -90,7 +90,7 @@ sleep 2
 
 # 13. hl-visor 실행
 echo -e "${YELLOW}hl-visor를 시작합니다.${NC}"
-./hl-node run-validator
+~/hl-visor run-validator
 
 # 13. 검증자 활성화
 echo -e "${YELLOW}검증자를 활성화합니다...${NC}"
