@@ -36,11 +36,11 @@ read -r -p "Enter를 눌러 계속 진행하십시오."
 # 6. GLIBC 업그레이드
 echo -e "${YELLOW}GLIBC 업그레이드를 시작합니다...${NC}"
 echo -e "${YELLOW}GLIBC 소스 다운로드 및 압축 해제 중...${NC}"
-wget https://ftp.gnu.org/gnu/libc/glibc-2.39.tar.gz && tar -xvf glibc-2.39.tar.gz
+wget https://ftp.gnu.org/gnu/libc/glibc-2.38.tar.gz && tar -xvf glibc-2.38.tar.gz
 echo -e "${YELLOW}GLIBC 컴파일 및 설치 중...${NC}"
-cd glibc-2.39 && mkdir build && cd build && ../configure --prefix=/opt/glibc-2.39 && make && sudo make install
+cd glibc-2.38 && mkdir build && cd build && ../configure --prefix=/opt/glibc-2.38 && make && sudo make install
 echo -e "${YELLOW}GLIBC 설치가 완료되었습니다. 새로운 GLIBC를 사용하기 위해 환경 변수를 설정합니다.${NC}"
-echo "export LD_LIBRARY_PATH=/opt/glibc-2.39/lib:\$LD_LIBRARY_PATH" >> ~/.bashrc
+echo "export LD_LIBRARY_PATH=/opt/glibc-2.38/lib:\$LD_LIBRARY_PATH" >> ~/.bashrc
 source ~/.bashrc
 
 # 7. 파일 다운로드 및 hl-visor 설정
